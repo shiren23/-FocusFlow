@@ -3,13 +3,14 @@ import {
   Layout, Calendar as CalendarIcon, PieChart, Settings as SettingsIcon, 
   Plus, Search, Mic, CheckCircle2, Circle, Clock, Tag, MoreHorizontal,
   ChevronRight, ChevronDown, Trash2, Upload, Download, FileText, Image as ImageIcon,
-  PlayCircle
+  PlayCircle, Server, Key, Box
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { StorageService } from './services/storage';
-import { parseTaskWithAI } from './services/geminiService';
+// Changed import from geminiService to aiService
+import { parseTaskWithAI } from './services/aiService';
 import FocusTimer from './components/FocusTimer';
-import { Task, Settings, ViewMode, Priority, SubTask } from './types';
+import { Task, Settings, ViewMode, Priority, SubTask, AiProvider } from './types';
 
 // --- Utility Components ---
 
@@ -206,12 +207,11 @@ const App: React.FC = () => {
       
       if (!settings.aiApiKey) {
         alert("Please set your AI API Key in Settings to use Voice Intelligence.");
-        // Fallback: Open modal with text pre-filled (simplified here)
         return;
       }
 
       try {
-        const parsed = await parseTaskWithAI(transcript, settings.aiApiKey);
+        const parsed = await parseTaskWithAI(transcript, settings);
         if (parsed) {
           const newTask: Task = {
             id: Date.now().toString(),
@@ -229,7 +229,7 @@ const App: React.FC = () => {
           addTask(newTask);
         }
       } catch (e) {
-        alert("AI Parsing failed. Check API Key.");
+        alert(`AI Parsing failed: ${(e as Error).message}. Check API Key and Settings.`);
       }
     };
 
@@ -357,8 +357,18 @@ const App: React.FC = () => {
       linkElement.click();
     };
 
+    const resetAiDefaults = (provider: AiProvider) => {
+      if (provider === 'gemini') {
+        setSettings(s => ({...s, aiProvider: 'gemini', aiBaseUrl: '', aiModel: 'gemini-2.5-flash-latest'}));
+      } else if (provider === 'openai') {
+        setSettings(s => ({...s, aiProvider: 'openai', aiBaseUrl: 'https://api.openai.com/v1', aiModel: 'gpt-4o-mini'}));
+      } else {
+        setSettings(s => ({...s, aiProvider: 'custom', aiBaseUrl: 'https://api.deepseek.com', aiModel: 'deepseek-chat'}));
+      }
+    };
+
     return (
-      <div className="max-w-3xl mx-auto space-y-8 p-4">
+      <div className="max-w-3xl mx-auto space-y-8 p-4 h-full overflow-y-auto">
         <h2 className="text-2xl font-bold text-stone-800">Settings</h2>
         
         <section className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
@@ -385,16 +395,66 @@ const App: React.FC = () => {
 
         <section className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
           <h3 className="font-medium text-lg flex items-center gap-2"><Mic size={20} /> AI Integration</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div>
+              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Provider</label>
+              <select 
+                value={settings.aiProvider}
+                onChange={(e) => resetAiDefaults(e.target.value as AiProvider)}
+                className="w-full p-2 bg-stone-50 rounded-lg border-none focus:ring-1 focus:ring-morandi-sage"
+              >
+                <option value="gemini">Google Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="custom">Custom (DeepSeek/Moonshot/Local)</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Model Name</label>
+              <div className="relative">
+                <Box size={14} className="absolute left-3 top-3 text-stone-400"/>
+                <input 
+                  type="text" 
+                  value={settings.aiModel}
+                  onChange={(e) => setSettings(s => ({...s, aiModel: e.target.value}))}
+                  placeholder="e.g. gpt-4o, gemini-pro"
+                  className="w-full p-2 pl-9 border border-stone-200 rounded-lg focus:outline-none focus:border-morandi-sage text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {(settings.aiProvider === 'openai' || settings.aiProvider === 'custom') && (
+            <div>
+              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Base URL</label>
+              <div className="relative">
+                <Server size={14} className="absolute left-3 top-3 text-stone-400"/>
+                <input 
+                  type="text" 
+                  value={settings.aiBaseUrl}
+                  onChange={(e) => setSettings(s => ({...s, aiBaseUrl: e.target.value}))}
+                  placeholder="https://api.openai.com/v1"
+                  className="w-full p-2 pl-9 border border-stone-200 rounded-lg focus:outline-none focus:border-morandi-sage text-sm font-mono"
+                />
+              </div>
+              <p className="text-[10px] text-stone-400 mt-1">Must include protocol (https://). For standard OpenAI compatible APIs, usually ends in /v1.</p>
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm font-medium mb-1">Google Gemini API Key</label>
-            <input 
-              type="password" 
-              value={settings.aiApiKey}
-              onChange={(e) => setSettings(s => ({...s, aiApiKey: e.target.value}))}
-              placeholder="Enter your API Key here..."
-              className="w-full p-2 border border-stone-200 rounded-lg focus:outline-none focus:border-morandi-sage font-mono text-sm"
-            />
-            <p className="text-xs text-stone-400 mt-1">Stored locally. Used for Voice-to-Task features.</p>
+            <label className="block text-xs font-bold text-stone-400 uppercase mb-1">API Key</label>
+             <div className="relative">
+                <Key size={14} className="absolute left-3 top-3 text-stone-400"/>
+                <input 
+                  type="password" 
+                  value={settings.aiApiKey}
+                  onChange={(e) => setSettings(s => ({...s, aiApiKey: e.target.value}))}
+                  placeholder="sk-..."
+                  className="w-full p-2 pl-9 border border-stone-200 rounded-lg focus:outline-none focus:border-morandi-sage font-mono text-sm"
+                />
+            </div>
+            <p className="text-[10px] text-stone-400 mt-1">Keys are stored locally in your browser.</p>
           </div>
         </section>
 

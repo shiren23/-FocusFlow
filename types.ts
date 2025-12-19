@@ -30,12 +30,19 @@ export interface Task {
   createdAt: number;
 }
 
+export type AiProvider = 'gemini' | 'openai' | 'custom';
+
 export interface Settings {
   themeColor: string;
   isDetailMode: boolean;
-  aiApiKey: string;
   brainClockInterval: number; // in minutes
   userName: string;
+  
+  // AI Configuration
+  aiProvider: AiProvider;
+  aiApiKey: string;
+  aiBaseUrl: string; // For OpenAI compatible (e.g., https://api.deepseek.com/v1)
+  aiModel: string;   // e.g., gemini-2.5-flash, gpt-4o, deepseek-chat
 }
 
 export type ViewMode = 'kanban' | 'calendar' | 'list' | 'settings' | 'stats';

@@ -8,9 +8,14 @@ const DEFAULT_CATEGORIES = ['学习', '技能', '运动', '职务'];
 const DEFAULT_SETTINGS: Settings = {
   themeColor: 'sage',
   isDetailMode: true,
-  aiApiKey: '',
   brainClockInterval: 30,
-  userName: 'User'
+  userName: 'User',
+  
+  // AI Defaults
+  aiProvider: 'gemini',
+  aiApiKey: '',
+  aiBaseUrl: 'https://api.openai.com/v1',
+  aiModel: 'gemini-2.5-flash-latest'
 };
 
 // Initial Sample Data
@@ -82,7 +87,9 @@ export const StorageService = {
 
   getSettings: (): Settings => {
     const data = localStorage.getItem(SETTINGS_KEY);
-    return data ? JSON.parse(data) : DEFAULT_SETTINGS;
+    const settings = data ? JSON.parse(data) : DEFAULT_SETTINGS;
+    // Merge with defaults to ensure new fields exist for old users
+    return { ...DEFAULT_SETTINGS, ...settings };
   },
 
   saveSettings: (settings: Settings) => {
