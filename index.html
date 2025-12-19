@@ -15,10 +15,11 @@
             },
             colors: {
               morandi: {
-                base: '#EBEBE6',
-                surface: '#F5F5F0',
-                sage: '#9EB3A6',
-                sageDark: '#7A8F82',
+                // Using CSS variables for dynamic theming
+                base: 'var(--color-base)',       // Background
+                surface: 'var(--color-surface)', // Sidebar/Cards
+                sage: 'var(--color-primary)',    // Main Brand Color (keeps legacy name 'sage' to avoid refactoring all files)
+                sageDark: 'var(--color-primary-dark)', // Hover states
                 clay: '#D4C4B7',
                 dust: '#B7B7B7',
                 charcoal: '#4A4A4A',
@@ -30,10 +31,27 @@
       }
     </script>
     <style>
-      body {
-        background-color: #EBEBE6;
-        color: #4A4A4A;
+      :root {
+        /* Default Theme (Sage) */
+        --color-base: #EBEBE6;
+        --color-surface: #F5F5F0;
+        --color-primary: #9EB3A6;
+        --color-primary-dark: #7A8F82;
       }
+
+      body {
+        background-color: var(--color-base);
+        color: #4A4A4A;
+        transition: background-color 0.5s ease, color 0.3s ease;
+      }
+      
+      /* Smooth transitions for theme changes */
+      *, *::before, *::after {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+      }
+
       /* Custom Scrollbar for sleek look */
       ::-webkit-scrollbar {
         width: 6px;
@@ -47,7 +65,7 @@
         border-radius: 3px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #9EB3A6;
+        background: var(--color-primary);
       }
       .glass {
         background: rgba(255, 255, 255, 0.65);

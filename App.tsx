@@ -3,14 +3,54 @@ import {
   Layout, Calendar as CalendarIcon, PieChart, Settings as SettingsIcon, 
   Plus, Search, Mic, CheckCircle2, Circle, Clock, Tag, MoreHorizontal,
   ChevronRight, ChevronDown, Trash2, Upload, Download, FileText, Image as ImageIcon,
-  PlayCircle, Server, Key, Box
+  PlayCircle, Server, Key, Box, Palette
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { StorageService } from './services/storage';
 // Changed import from geminiService to aiService
 import { parseTaskWithAI } from './services/aiService';
 import FocusTimer from './components/FocusTimer';
-import { Task, Settings, ViewMode, Priority, SubTask, AiProvider } from './types';
+import { Task, Settings, ViewMode, Priority, SubTask, AiProvider, ThemeKey } from './types';
+
+// --- Theme Definitions ---
+
+const THEMES: Record<ThemeKey, { name: string; primary: string; dark: string; base: string; surface: string }> = {
+  sage: { 
+    name: 'Sage Green', 
+    primary: '#9EB3A6', 
+    dark: '#7A8F82',
+    base: '#EBEBE6',
+    surface: '#F5F5F0'
+  },
+  ocean: { 
+    name: 'Misty Ocean', 
+    primary: '#93A2B5', 
+    dark: '#6D7E94',
+    base: '#E6E9EB',
+    surface: '#F0F4F5'
+  },
+  rose: { 
+    name: 'Dusty Rose', 
+    primary: '#C9A7A7', 
+    dark: '#A68080',
+    base: '#EBE6E6',
+    surface: '#F5F0F0'
+  },
+  sand: { 
+    name: 'Desert Sand', 
+    primary: '#C2B6A5', 
+    dark: '#9E9180',
+    base: '#EBE9E6',
+    surface: '#F5F3F0'
+  },
+  lavender: { 
+    name: 'Pale Lavender', 
+    primary: '#ADA6B8', 
+    dark: '#888096',
+    base: '#E9E6EB',
+    surface: '#F3F0F5'
+  }
+};
 
 // --- Utility Components ---
 
@@ -145,6 +185,16 @@ const App: React.FC = () => {
   useEffect(() => {
     StorageService.saveSettings(settings);
   }, [settings]);
+
+  // Apply Theme Effect
+  useEffect(() => {
+    const theme = THEMES[settings.themeColor] || THEMES.sage;
+    const root = document.documentElement;
+    root.style.setProperty('--color-base', theme.base);
+    root.style.setProperty('--color-surface', theme.surface);
+    root.style.setProperty('--color-primary', theme.primary);
+    root.style.setProperty('--color-primary-dark', theme.dark);
+  }, [settings.themeColor]);
 
   // Brain Clock Reminder
   useEffect(() => {
@@ -391,6 +441,34 @@ const App: React.FC = () => {
               className="w-full p-2 border border-stone-200 rounded-lg focus:outline-none focus:border-morandi-sage"
             />
           </div>
+        </section>
+
+        <section className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+           <h3 className="font-medium text-lg flex items-center gap-2"><Palette size={20} /> Theme</h3>
+           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+             {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
+               const theme = THEMES[key];
+               const isActive = settings.themeColor === key;
+               return (
+                 <button
+                    key={key}
+                    onClick={() => setSettings(s => ({...s, themeColor: key}))}
+                    className={`
+                      relative p-3 rounded-xl border transition-all flex flex-col items-center gap-2
+                      ${isActive ? 'border-morandi-sage ring-2 ring-morandi-sage/20 bg-stone-50' : 'border-stone-100 hover:border-stone-200'}
+                    `}
+                 >
+                    <div className="flex gap-1">
+                      <div className="w-6 h-6 rounded-full shadow-sm" style={{ backgroundColor: theme.primary }} />
+                      <div className="w-6 h-6 rounded-full shadow-sm" style={{ backgroundColor: theme.base }} />
+                    </div>
+                    <span className={`text-xs font-medium ${isActive ? 'text-stone-800' : 'text-stone-500'}`}>
+                      {theme.name}
+                    </span>
+                 </button>
+               );
+             })}
+           </div>
         </section>
 
         <section className="bg-white p-6 rounded-2xl shadow-sm space-y-4">

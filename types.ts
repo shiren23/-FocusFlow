@@ -31,9 +31,10 @@ export interface Task {
 }
 
 export type AiProvider = 'gemini' | 'openai' | 'custom';
+export type ThemeKey = 'sage' | 'ocean' | 'rose' | 'sand' | 'lavender';
 
 export interface Settings {
-  themeColor: string;
+  themeColor: ThemeKey;
   isDetailMode: boolean;
   brainClockInterval: number; // in minutes
   userName: string;
