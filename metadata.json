@@ -1,0 +1,7 @@
+{
+  "name": "FocusFlow",
+  "description": "An advanced, privacy-first personal productivity OS designed with a Morandi aesthetic. Features AI task parsing, Eisenhower Matrix Kanban, and deep focus tools.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
