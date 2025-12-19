@@ -35,6 +35,7 @@ export type ThemeKey = 'sage' | 'ocean' | 'rose' | 'sand' | 'lavender';
 
 export interface Settings {
   themeColor: ThemeKey;
+  isDarkMode: boolean; // New field for Dark Mode
   isDetailMode: boolean;
   brainClockInterval: number; // in minutes
   userName: string;

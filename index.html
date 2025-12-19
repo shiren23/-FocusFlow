@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
         theme: {
           extend: {
             fontFamily: {
@@ -32,7 +33,7 @@
     </script>
     <style>
       :root {
-        /* Default Theme (Sage) */
+        /* Default Theme (Sage) - Values will be overwritten by JS */
         --color-base: #EBEBE6;
         --color-surface: #F5F5F0;
         --color-primary: #9EB3A6;
@@ -45,6 +46,11 @@
         transition: background-color 0.5s ease, color 0.3s ease;
       }
       
+      /* Dark mode global overrides if needed */
+      html.dark body {
+        color: #E7E5E4; /* Stone 200 */
+      }
+
       /* Smooth transitions for theme changes */
       *, *::before, *::after {
         transition-property: background-color, border-color, color, fill, stroke;
@@ -72,6 +78,11 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      
+      html.dark .glass {
+        background: rgba(30, 30, 30, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
   <script type="importmap">

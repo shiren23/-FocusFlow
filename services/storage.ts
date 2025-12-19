@@ -7,6 +7,7 @@ const CATEGORIES_KEY = 'focusflow_categories';
 const DEFAULT_CATEGORIES = ['学习', '技能', '运动', '职务'];
 const DEFAULT_SETTINGS: Settings = {
   themeColor: 'sage',
+  isDarkMode: false, // Default to Light Mode
   isDetailMode: true,
   brainClockInterval: 30,
   userName: 'User',
